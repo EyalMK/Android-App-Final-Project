@@ -5,11 +5,9 @@ class Book {
   final String title;
   final String author;
   final String description;
-  final String coverUrl;
-  final String fileUrl;
+  final String bookData;
   final String ageGroup;
   final DateTime uploadDate;
-  final String uploadedBy;
   final int downloadCount;
   final bool isCached;
 
@@ -18,11 +16,9 @@ class Book {
     required this.title,
     required this.author,
     required this.description,
-    required this.coverUrl,
-    required this.fileUrl,
+    required this.bookData,
     required this.ageGroup,
     required this.uploadDate,
-    required this.uploadedBy,
     this.downloadCount = 0,
     this.isCached = false,
   });
@@ -33,11 +29,9 @@ class Book {
       title: map['title'] ?? '',
       author: map['author'] ?? '',
       description: map['description'] ?? '',
-      coverUrl: map['coverUrl'] ?? '',
-      fileUrl: map['fileUrl'] ?? '',
+      bookData: map['fileUrl'] ?? '',
       ageGroup: map['ageGroup'] ?? '',
       uploadDate: (map['uploadDate'] as Timestamp).toDate(),
-      uploadedBy: map['uploadedBy'] ?? '',
       downloadCount: map['downloadCount'] ?? 0,
       isCached: map['isCached'] ?? false,
     );
@@ -48,11 +42,9 @@ class Book {
       'title': title,
       'author': author,
       'description': description,
-      'coverUrl': coverUrl,
-      'fileUrl': fileUrl,
+      'bookData': bookData,
       'ageGroup': ageGroup,
       'uploadDate': uploadDate,
-      'uploadedBy': uploadedBy,
       'downloadCount': downloadCount,
       'isCached': isCached,
     };
@@ -63,11 +55,9 @@ class Book {
     String? title,
     String? author,
     String? description,
-    String? coverUrl,
-    String? fileUrl,
+    String? bookData,
     String? ageGroup,
     DateTime? uploadDate,
-    String? uploadedBy,
     int? downloadCount,
     bool? isCached,
   }) {
@@ -76,11 +66,9 @@ class Book {
       title: title ?? this.title,
       author: author ?? this.author,
       description: description ?? this.description,
-      coverUrl: coverUrl ?? this.coverUrl,
-      fileUrl: fileUrl ?? this.fileUrl,
+      bookData: bookData ?? this.bookData,
       ageGroup: ageGroup ?? this.ageGroup,
       uploadDate: uploadDate ?? this.uploadDate,
-      uploadedBy: uploadedBy ?? this.uploadedBy,
       downloadCount: downloadCount ?? this.downloadCount,
       isCached: isCached ?? this.isCached,
     );

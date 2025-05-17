@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/screens/auth/login_screen.dart';
-import 'package:android_dev_final_project/services/auth_service.dart';
 import 'package:android_dev_final_project/services/theme_service.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -42,9 +41,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.signOut();
-      
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -66,7 +62,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
     final themeProvider = Provider.of<ThemeService>(context);
     final isDarkMode = themeProvider.isDarkMode;
     
@@ -77,13 +72,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           // User profile section
-          if (authService.currentUser != null) ...[
+          ...[
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 child: const Icon(Icons.person, color: Colors.white),
               ),
-              title: Text(authService.currentUser?.phoneNumber ?? 'User'),
+              title: Text('User'),
               subtitle: const Text('Account'),
             ),
             const Divider(),
