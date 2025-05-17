@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/screens/home/home_screen.dart';
-import 'package:android_dev_final_project/services/auth_service.dart';
 import 'package:android_dev_final_project/widgets/custom_button.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:provider/provider.dart';
 
 class VerificationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -55,79 +52,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
     });
 
     try {
-      final authService = Provider.of<AuthService>(context, listen: false);
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const HomeScreen()),
             (route) => false,
-      );
-      // Create credential
-      // final credential = PhoneAuthProvider.credential(
-      //   verificationId: widget.verificationId,
-      //   smsCode: _codeController.text.trim(),
-      // );
-      //
-      // // Sign in
-      // await authService.signInWithCredential(credential);
-      //
-      // if (mounted) {
-      //   Navigator.of(context).pushAndRemoveUntil(
-      //     MaterialPageRoute(builder: (_) => const HomeScreen()),
-      //     (route) => false,
-      //   );
-      // }
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = e.message ?? 'Verification failed. Please try again.';
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = e.toString();
-      });
-    }
-  }
-
-  Future<void> _resendCode() async {
-    if (_resendTimer > 0) return;
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      
-      await authService.verifyPhoneNumber(
-        phoneNumber: widget.phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await authService.signInWithCredential(credential);
-          if (mounted) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-            );
-          }
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = e.message ?? 'Verification failed. Please try again.';
-          });
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          setState(() {
-            _isLoading = false;
-            _resendTimer = 60;
-          });
-          _startResendTimer();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Verification code resent')),
-          );
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          // Auto-retrieval timeout
-        },
       );
     } catch (e) {
       setState(() {
@@ -219,7 +146,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               ),
               const SizedBox(height: 24),
               TextButton(
-                onPressed: _resendTimer > 0 ? null : _resendCode,
+                onPressed: _resendTimer > 0 ? null : () => (_startResendTimer()),
                 child: Text(
                   _resendTimer > 0
                       ? 'Resend code in $_resendTimer seconds'

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/screens/auth/login_screen.dart';
-import 'package:android_dev_final_project/screens/home/home_screen.dart';
-import 'package:android_dev_final_project/services/auth_service.dart';
-import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -37,16 +34,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _checkAuthStatus() {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    if (authService.isAuthenticated) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-    }
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
   }
 
   @override
