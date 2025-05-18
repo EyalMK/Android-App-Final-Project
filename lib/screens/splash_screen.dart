@@ -28,12 +28,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     // Check authentication status after animation
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _checkAuthStatus();
+        _navigateToLogin();
       }
     });
   }
 
-  void _checkAuthStatus() {
+  void _navigateToLogin() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
     );

@@ -50,7 +50,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
     try {
       final bookService = Provider.of<BookService>(context, listen: false);
-      final file = await bookService.downloadBook(widget.book);
+      await bookService.downloadBook(widget.book);
       
       setState(() {
         _isDownloaded = true;

@@ -102,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications settings not implemented in this demo')),
+                const SnackBar(content: Text('Notifications settings are not implemented :(')),
               );
             },
           ),
@@ -113,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Storage settings not implemented in this demo')),
+                const SnackBar(content: Text('Storage settings are not implemented :(')),
               );
             },
           ),
@@ -127,7 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: () {
               showAboutDialog(
                 context: context,
-                applicationName: 'Peekabook - Children\'s Books App',
+                applicationName: "Peekabook - Children's Books App",
                 applicationVersion: _appVersion,
                 applicationIcon: Icon(
                   Icons.menu_book_rounded,
@@ -136,7 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 children: [
                   const Text(
-                    'A Flutter application for uploading and downloading children\'s books, categorized by age groups.',
+                    "A Flutter application for uploading and downloading children's books, categorized by age groups.",
                   ),
                 ],
               );
@@ -148,7 +148,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Help & Support'),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Help & Support not implemented in this demo')),
+                const SnackBar(content: Text('Help & Support are not implemented :(')),
               );
             },
           ),
@@ -158,7 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Privacy Policy'),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Privacy Policy not implemented in this demo')),
+                const SnackBar(content: Text('Privacy Policy is not implemented :(')),
               );
             },
           ),

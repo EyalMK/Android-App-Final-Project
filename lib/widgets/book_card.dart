@@ -34,10 +34,10 @@ class BookCard extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(12),
                     ),
-                    // image: DecorationImage(
-                    //   image: NetworkImage(book.coverUrl),
-                    //   fit: BoxFit.cover,
-                    // ),
+                    image: DecorationImage(
+                      image: NetworkImage(book.coverUrl),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),

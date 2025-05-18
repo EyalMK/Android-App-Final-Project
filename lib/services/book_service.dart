@@ -39,25 +39,25 @@ class BookService extends ChangeNotifier {
   }) async {
     final String bookId = const Uuid().v4();
 
-    // Upload book file and cover image to
+    // Upload book file and cover image to Supabase storage...
     final bookFileBytes = await bookFile.readAsBytes();
     final bookFileName = bookFile.path.split('/').last;
 
     final coverFileBytes = await coverImage.readAsBytes();
     final coverFileName = coverImage.path.split('/').last;
 
-    final bookResponse = await _supabase.storage
+    await _supabase.storage
         .from('books')
         .uploadBinary(bookFileName, bookFileBytes,
         fileOptions: const FileOptions(upsert: true));
 
-    final coverResponse = await _supabase.storage
+    await _supabase.storage
             .from('book-covers')
             .uploadBinary(coverFileName, coverFileBytes,
             fileOptions: const FileOptions(upsert: true));
 
-    final bookUrl = _supabase.storage.from('books').getPublicUrl(bookResponse);
-    final coverUrl = _supabase.storage.from('book-covers').getPublicUrl(coverResponse);
+    final bookUrl = _supabase.storage.from('books').getPublicUrl(bookFileName);
+    final coverUrl = _supabase.storage.from('book-covers').getPublicUrl(coverFileName);
 
     // Create book object
     final book = Book(
@@ -97,7 +97,7 @@ class BookService extends ChangeNotifier {
     if (bookResponse.statusCode == 200) {
       await file.writeAsBytes(bookResponse.bodyBytes);
     } else {
-      throw Error();
+      throw HttpException("Failed to download book");
     }
 
     // Update download count in Firestore
@@ -114,8 +114,22 @@ class BookService extends ChangeNotifier {
     final booksSnapshot = await _firestore
         .collection('books')
         .get();
-    
-    return booksSnapshot.docs.map((doc) => Book.fromMap(doc.data(), doc.id)).toList();
+
+    final directory = await getApplicationDocumentsDirectory();
+
+    final downloadedBooks = <Book>[];
+
+    for (final doc in booksSnapshot.docs) {
+      final book = Book.fromMap(doc.data(), doc.id);
+      final filePath = '${directory.path}/${book.id}.pdf';
+      final file = File(filePath);
+
+      if (await file.exists()) {
+        downloadedBooks.add(book);
+      }
+    }
+
+    return downloadedBooks;
   }
   
   // Delete a book (admin or owner only)
