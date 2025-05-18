@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
@@ -96,7 +95,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          if (_isReady)
+          if (_isReady && _currentPage > 0)
             FloatingActionButton.small(
               heroTag: 'prev',
               onPressed: _currentPage > 0
@@ -107,7 +106,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               child: const Icon(Icons.arrow_back),
             ),
           const SizedBox(width: 16),
-          if (_isReady)
+          if (_isReady && _currentPage < _pages - 1)
             FloatingActionButton.small(
               heroTag: 'next',
               onPressed: _currentPage < _pages - 1
