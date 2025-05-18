@@ -1,16 +1,15 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/models/book.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 class BookService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _supabase = Supabase.instance.client;
   
   // Age group constants
   static const String ageGroup04 = '0-4';
@@ -36,19 +35,38 @@ class BookService extends ChangeNotifier {
     required String description,
     required String ageGroup,
     required File bookFile,
+    required File coverImage,
   }) async {
     final String bookId = const Uuid().v4();
 
-    final bookBytes = await bookFile.readAsBytes();
-    final bookBase64 = base64Encode(bookBytes);
-    
+    // Upload book file and cover image to
+    final bookFileBytes = await bookFile.readAsBytes();
+    final bookFileName = bookFile.path.split('/').last;
+
+    final coverFileBytes = await coverImage.readAsBytes();
+    final coverFileName = coverImage.path.split('/').last;
+
+    final bookResponse = await _supabase.storage
+        .from('books')
+        .uploadBinary(bookFileName, bookFileBytes,
+        fileOptions: const FileOptions(upsert: true));
+
+    final coverResponse = await _supabase.storage
+            .from('book-covers')
+            .uploadBinary(coverFileName, coverFileBytes,
+            fileOptions: const FileOptions(upsert: true));
+
+    final bookUrl = _supabase.storage.from('books').getPublicUrl(bookResponse);
+    final coverUrl = _supabase.storage.from('book-covers').getPublicUrl(coverResponse);
+
     // Create book object
     final book = Book(
       id: bookId,
       title: title,
       author: author,
       description: description,
-      bookData: bookBase64,
+      coverUrl: coverUrl,
+      fileUrl: bookUrl,
       ageGroup: ageGroup,
       uploadDate: DateTime.now(),
     );
@@ -65,7 +83,7 @@ class BookService extends ChangeNotifier {
     final directory = await getApplicationDocumentsDirectory();
     final filePath = '${directory.path}/${book.id}.pdf';
     final file = File(filePath);
-    
+
     // Check if file already exists
     if (await file.exists()) {
       return file;
@@ -73,19 +91,19 @@ class BookService extends ChangeNotifier {
     
     // Download file
     final doc = await FirebaseFirestore.instance.collection('books').doc(book.id).get();
-    final bookBytes = base64Decode(doc['bookData']);
-    await file.writeAsBytes(bookBytes);
-    
+    final String bookUrl = doc['fileUrl'];
+
+    final bookResponse = await http.get(Uri.parse(bookUrl));
+    if (bookResponse.statusCode == 200) {
+      await file.writeAsBytes(bookResponse.bodyBytes);
+    } else {
+      throw Error();
+    }
+
     // Update download count in Firestore
     await _firestore.collection('books').doc(book.id).update({
       'downloadCount': FieldValue.increment(1),
     });
-
-    // Update book object with cached status
-    final updatedBook = book.copyWith(
-      downloadCount: book.downloadCount + 1,
-      isCached: true,
-    );
     
     notifyListeners();
     return file;

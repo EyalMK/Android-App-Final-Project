@@ -1,3 +1,4 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -17,6 +18,12 @@ void main() async {
 
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.debug,
+  );
+
+  // Supabase for storage
+  await Supabase.initialize(
+    url: 'https://uqbkrmfekbeqbnowoapb.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxYmtybWZla2JlcWJub3dvYXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1ODMzNzEsImV4cCI6MjA2MzE1OTM3MX0.yTZEy0wjc7GknfHpjvpX4bI9u_4MTzsqP-MweBA8qJM',
   );
 
   runApp(const MyApp());

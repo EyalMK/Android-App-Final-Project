@@ -25,6 +25,7 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
   final _descriptionController = TextEditingController();
 
   File? _bookFile;
+  File? _coverImage;
   bool _isUploading = false;
   String? _errorMessage;
 
@@ -60,12 +61,39 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
     }
   }
 
+  Future<void> _pickCoverImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        setState(() {
+          _coverImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error picking image: $e';
+      });
+    }
+  }
+
   Future<void> _uploadBook() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_bookFile == null) {
       setState(() {
         _errorMessage = 'Please select a PDF file';
+      });
+      return;
+    }
+
+    if (_coverImage == null) {
+      setState(() {
+        _errorMessage = 'Please select a cover image';
       });
       return;
     }
@@ -84,6 +112,7 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
         description: _descriptionController.text.trim(),
         ageGroup: widget.ageGroup,
         bookFile: _bookFile!,
+        coverImage: _coverImage!
       );
 
       if (mounted) {
@@ -121,6 +150,47 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
                   'Upload a new book for ages ${widget.ageGroup}',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                GestureDetector(
+                  onTap: _pickCoverImage,
+                  child: Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                      ),
+                      image: _coverImage != null
+                          ? DecorationImage(
+                        image: FileImage(_coverImage!),
+                        fit: BoxFit.cover,
+                      )
+                          : null,
+                    ),
+                    child: _coverImage == null
+                        ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.add_photo_alternate_outlined,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Add Cover Image',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    )
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 24),

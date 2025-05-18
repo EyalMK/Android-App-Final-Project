@@ -38,6 +38,10 @@ dependencies:
   firebase_storage: ^11.7.0
   cloud_firestore: ^4.9.1
 
+  # Supabase - for Storage
+  supabase_flutter: ^2.9.0
+  # Android!Tamir
+
   # State management
   provider: ^6.0.5
 

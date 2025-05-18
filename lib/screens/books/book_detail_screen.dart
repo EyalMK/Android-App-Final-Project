@@ -120,10 +120,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    // image: DecorationImage(
-                    //   image: NetworkImage(widget.book.coverUrl),
-                    //   fit: BoxFit.cover,
-                    // ),
+                    image: DecorationImage(
+                      image: NetworkImage(widget.book.coverUrl),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
