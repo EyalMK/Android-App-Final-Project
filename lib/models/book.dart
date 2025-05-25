@@ -9,7 +9,6 @@ class Book {
   final String fileUrl;
   final String ageGroup;
   final DateTime uploadDate;
-  final String uploadedBy;
   final int downloadCount;
   final bool isCached;
 
@@ -22,7 +21,6 @@ class Book {
     required this.fileUrl,
     required this.ageGroup,
     required this.uploadDate,
-    required this.uploadedBy,
     this.downloadCount = 0,
     this.isCached = false,
   });
@@ -37,7 +35,6 @@ class Book {
       fileUrl: map['fileUrl'] ?? '',
       ageGroup: map['ageGroup'] ?? '',
       uploadDate: (map['uploadDate'] as Timestamp).toDate(),
-      uploadedBy: map['uploadedBy'] ?? '',
       downloadCount: map['downloadCount'] ?? 0,
       isCached: map['isCached'] ?? false,
     );
@@ -52,7 +49,6 @@ class Book {
       'fileUrl': fileUrl,
       'ageGroup': ageGroup,
       'uploadDate': uploadDate,
-      'uploadedBy': uploadedBy,
       'downloadCount': downloadCount,
       'isCached': isCached,
     };
@@ -67,7 +63,6 @@ class Book {
     String? fileUrl,
     String? ageGroup,
     DateTime? uploadDate,
-    String? uploadedBy,
     int? downloadCount,
     bool? isCached,
   }) {
@@ -76,11 +71,10 @@ class Book {
       title: title ?? this.title,
       author: author ?? this.author,
       description: description ?? this.description,
-      coverUrl: coverUrl ?? this.coverUrl,
       fileUrl: fileUrl ?? this.fileUrl,
+      coverUrl: coverUrl ?? this.coverUrl,
       ageGroup: ageGroup ?? this.ageGroup,
       uploadDate: uploadDate ?? this.uploadDate,
-      uploadedBy: uploadedBy ?? this.uploadedBy,
       downloadCount: downloadCount ?? this.downloadCount,
       isCached: isCached ?? this.isCached,
     );

@@ -1,10 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/screens/auth/verification_screen.dart';
-import 'package:android_dev_final_project/screens/home/home_screen.dart';
-import 'package:android_dev_final_project/services/auth_service.dart';
 import 'package:android_dev_final_project/widgets/custom_button.dart';
-import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final authService = Provider.of<AuthService>(context, listen: false);
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => VerificationScreen(
@@ -43,40 +38,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       );
-      // await authService.verifyPhoneNumber(
-      //   phoneNumber: _phoneController.text.trim(),
-      //   verificationCompleted: (PhoneAuthCredential credential) async {
-      //     // Auto-verification completed (Android only)
-      //     await authService.signInWithCredential(credential);
-      //     if (mounted) {
-      //       Navigator.of(context).pushReplacement(
-      //         MaterialPageRoute(builder: (_) => const HomeScreen()),
-      //       );
-      //     }
-      //   },
-      //   verificationFailed: (FirebaseAuthException e) {
-      //     setState(() {
-      //       _isLoading = false;
-      //       _errorMessage = e.message ?? 'Verification failed. Please try again.';
-      //     });
-      //   },
-      //   codeSent: (String verificationId, int? resendToken) {
-      //     setState(() {
-      //       _isLoading = false;
-      //     });
-      //     Navigator.of(context).push(
-      //       MaterialPageRoute(
-      //         builder: (_) => VerificationScreen(
-      //           phoneNumber: _phoneController.text.trim(),
-      //           verificationId: verificationId,
-      //         ),
-      //       ),
-      //     );
-      //   },
-      //   codeAutoRetrievalTimeout: (String verificationId) {
-      //     // Auto-retrieval timeout
-      //   },
-      // );
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -128,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         keyboardType: TextInputType.phone,
                         decoration: const InputDecoration(
                           labelText: 'Phone Number',
-                          hintText: '+1 234 567 8900',
+                          hintText: '+972 52 555 8512',
                           prefixIcon: Icon(Icons.phone),
                         ),
                         validator: (value) {
@@ -137,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                           // Basic phone number validation
                           if (!value.contains('+')) {
-                            return 'Please include country code (e.g., +1)';
+                            return 'Please include country code (e.g., +972)';
                           }
                           return null;
                         },

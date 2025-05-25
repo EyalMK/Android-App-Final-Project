@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/screens/auth/login_screen.dart';
-import 'package:android_dev_final_project/services/auth_service.dart';
 import 'package:android_dev_final_project/services/theme_service.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -42,9 +41,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.signOut();
-      
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -66,7 +62,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
     final themeProvider = Provider.of<ThemeService>(context);
     final isDarkMode = themeProvider.isDarkMode;
     
@@ -77,13 +72,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           // User profile section
-          if (authService.currentUser != null) ...[
+          ...[
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 child: const Icon(Icons.person, color: Colors.white),
               ),
-              title: Text(authService.currentUser?.phoneNumber ?? 'User'),
+              title: Text('User'),
               subtitle: const Text('Account'),
             ),
             const Divider(),
@@ -107,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications settings not implemented in this demo')),
+                const SnackBar(content: Text('Notifications settings are not implemented :(')),
               );
             },
           ),
@@ -118,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Storage settings not implemented in this demo')),
+                const SnackBar(content: Text('Storage settings are not implemented :(')),
               );
             },
           ),
@@ -132,7 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: () {
               showAboutDialog(
                 context: context,
-                applicationName: 'Peekabook - Children\'s Books App',
+                applicationName: "Peekabook - Children's Books App",
                 applicationVersion: _appVersion,
                 applicationIcon: Icon(
                   Icons.menu_book_rounded,
@@ -141,7 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 children: [
                   const Text(
-                    'A Flutter application for uploading and downloading children\'s books, categorized by age groups.',
+                    "A Flutter application for uploading and downloading children's books, categorized by age groups.",
                   ),
                 ],
               );
@@ -153,7 +148,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Help & Support'),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Help & Support not implemented in this demo')),
+                const SnackBar(content: Text('Help & Support are not implemented :(')),
               );
             },
           ),
@@ -163,7 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Privacy Policy'),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Privacy Policy not implemented in this demo')),
+                const SnackBar(content: Text('Privacy Policy is not implemented :(')),
               );
             },
           ),
