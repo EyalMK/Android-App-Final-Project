@@ -39,14 +39,12 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
 
   Future<void> _pickBookFile() async {
     try {
-      // Define the accepted file types
       final XTypeGroup pdfTypeGroup = XTypeGroup(
         label: 'PDFs',
         extensions: ['pdf'],
         mimeTypes: ['application/pdf'],
       );
 
-      // Open file picker
       final XFile? file = await openFile(
         acceptedTypeGroups: [pdfTypeGroup],
       );
@@ -114,7 +112,7 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
         description: _descriptionController.text.trim(),
         ageGroup: widget.ageGroup,
         bookFile: _bookFile!,
-        coverImage: _coverImage!,
+        coverImage: _coverImage!
       );
 
       if (mounted) {
@@ -156,7 +154,6 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Cover image picker
                 GestureDetector(
                   onTap: _pickCoverImage,
                   child: Container(
