@@ -1,13 +1,36 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum BookExtension { pdf, doc }
+
+BookExtension bookExtensionFromString(String ext) {
+  switch (ext.toLowerCase()) {
+    case 'pdf':
+      return BookExtension.pdf;
+    case 'doc':
+    case 'docx':
+      return BookExtension.doc;
+    default:
+      throw ArgumentError('Unsupported file extension: $ext');
+  }
+}
+
+String bookExtensionToString(BookExtension ext) {
+  switch (ext) {
+    case BookExtension.pdf:
+      return 'pdf';
+    case BookExtension.doc:
+      return 'doc';
+  }
+}
+
 class Book {
   final String id;
   final String title;
   final String author;
   final String description;
   final String coverUrl;
-  final String pdfUrl;
-  final String wordUrl;
+  final String fileUrl;
+  final BookExtension extension;
   final String ageGroup;
   final DateTime uploadDate;
   final int downloadCount;
@@ -19,8 +42,8 @@ class Book {
     required this.author,
     required this.description,
     required this.coverUrl,
-    required this.pdfUrl,
-    required this.wordUrl,
+    required this.fileUrl,
+    required this.extension,
     required this.ageGroup,
     required this.uploadDate,
     this.downloadCount = 0,
@@ -28,14 +51,16 @@ class Book {
   });
 
   factory Book.fromMap(Map<String, dynamic> map, String id) {
+    final fileUrl = map['fileUrl'] ?? '';
+    final extStr = fileUrl.split('.').last.toLowerCase();
     return Book(
       id: id,
       title: map['title'] ?? '',
       author: map['author'] ?? '',
       description: map['description'] ?? '',
       coverUrl: map['coverUrl'] ?? '',
-      pdfUrl: map['pdfUrl'] ?? '',
-      wordUrl: map['wordUrl'] ?? '',
+      fileUrl: fileUrl,
+      extension: bookExtensionFromString(extStr),
       ageGroup: map['ageGroup'] ?? '',
       uploadDate: (map['uploadDate'] as Timestamp).toDate(),
       downloadCount: map['downloadCount'] ?? 0,
@@ -49,9 +74,9 @@ class Book {
       'author': author,
       'description': description,
       'coverUrl': coverUrl,
-      'pdfUrl': pdfUrl,
-      'wordUrl': wordUrl,
+      'fileUrl': fileUrl,
       'ageGroup': ageGroup,
+      'extension': bookExtensionToString(extension),
       'uploadDate': uploadDate,
       'downloadCount': downloadCount,
       'isCached': isCached,
@@ -64,8 +89,8 @@ class Book {
     String? author,
     String? description,
     String? coverUrl,
-    String? pdfUrl,
-    String? wordUrl,
+    String? fileUrl,
+    BookExtension? extension,
     String? ageGroup,
     DateTime? uploadDate,
     int? downloadCount,
@@ -77,12 +102,15 @@ class Book {
       author: author ?? this.author,
       description: description ?? this.description,
       coverUrl: coverUrl ?? this.coverUrl,
-      pdfUrl: pdfUrl ?? this.pdfUrl,
-      wordUrl: wordUrl ?? this.wordUrl,
+      fileUrl: fileUrl ?? this.fileUrl,
+      extension: extension ?? this.extension,
       ageGroup: ageGroup ?? this.ageGroup,
       uploadDate: uploadDate ?? this.uploadDate,
       downloadCount: downloadCount ?? this.downloadCount,
       isCached: isCached ?? this.isCached,
     );
   }
+
+  bool get isPdf => extension == BookExtension.pdf;
+  bool get isWord => extension == BookExtension.doc;
 }

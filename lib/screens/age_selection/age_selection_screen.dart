@@ -1,3 +1,4 @@
+import 'package:android_dev_final_project/models/book.dart';
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/screens/books/books_list_screen.dart';
 import 'package:android_dev_final_project/services/book_service.dart';
@@ -35,61 +36,202 @@ class AgeSelectionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Expanded(
-                child: GridView.count(
-                  crossAxisCount: 1,
-                  childAspectRatio: 2.5,
-                  mainAxisSpacing: 16,
+                child: Row(
                   children: [
-                    AgeCategoryCard(
-                      title: 'Ages 0-4',
-                      description: 'Picture books, board books, and simple stories',
-                      color: AppTheme.age04Color,
-                      icon: Icons.child_care,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BooksListScreen(
-                              ageGroup: BookService.ageGroup04,
-                              title: 'Ages 0-4',
+                    // PDF Column
+                    Expanded(
+                      child: Column(
+                        children: [
+                          // PDF Icon Header
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Column(
+                              children: [
+                                Icon(
+                                  Icons.picture_as_pdf,
+                                  size: 40,
+                                  color: Colors.red,
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'PDF Books',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      },
+                          const SizedBox(height: 16),
+                          // Age Category Cards
+                          Expanded(
+                            child: ListView(
+                              children: [
+                                AgeCategoryCard(
+                                  title: 'Ages 0-4',
+                                  description: 'Picture books, board books',
+                                  color: AppTheme.age04Color,
+                                  icon: Icons.child_care,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BooksListScreen(
+                                          ageGroup: BookService.ageGroup04,
+                                          title: 'Ages 0-4 (PDF)',
+                                          extension: bookExtensionToString(BookExtension.pdf)
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                AgeCategoryCard(
+                                  title: 'Ages 4-8',
+                                  description: 'Early readers',
+                                  color: AppTheme.age48Color,
+                                  icon: Icons.face,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BooksListScreen(
+                                          ageGroup: BookService.ageGroup48,
+                                          title: 'Ages 4-8 (PDF)',
+                                          extension: bookExtensionToString(BookExtension.pdf)
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                AgeCategoryCard(
+                                  title: 'Ages 8-12',
+                                  description: 'Chapter books',
+                                  color: AppTheme.age812Color,
+                                  icon: Icons.school,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BooksListScreen(
+                                          ageGroup: BookService.ageGroup812,
+                                          title: 'Ages 8-12 (PDF)',
+                                          extension: bookExtensionToString(BookExtension.pdf)
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    AgeCategoryCard(
-                      title: 'Ages 4-8',
-                      description: 'Early readers and chapter books',
-                      color: AppTheme.age48Color,
-                      icon: Icons.face,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BooksListScreen(
-                              ageGroup: BookService.ageGroup48,
-                              title: 'Ages 4-8',
+                    const SizedBox(width: 16),
+                    // Word Column
+                    Expanded(
+                      child: Column(
+                        children: [
+                          // Word Icon Header
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Column(
+                              children: [
+                                Icon(
+                                  Icons.description,
+                                  size: 40,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Word Books',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      },
-                    ),
-                    AgeCategoryCard(
-                      title: 'Ages 8-12',
-                      description: 'Chapter books and middle-grade novels',
-                      color: AppTheme.age812Color,
-                      icon: Icons.school,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BooksListScreen(
-                              ageGroup: BookService.ageGroup812,
-                              title: 'Ages 8-12',
+                          const SizedBox(height: 16),
+                          // Age Category Cards
+                          Expanded(
+                            child: ListView(
+                              children: [
+                                AgeCategoryCard(
+                                  title: 'Ages 0-4',
+                                  description: 'Picture books, board books',
+                                  color: AppTheme.age04Color,
+                                  icon: Icons.child_care,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BooksListScreen(
+                                          ageGroup: BookService.ageGroup04,
+                                          title: 'Ages 0-4 (Word)',
+                                          extension: bookExtensionToString(BookExtension.doc)
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                AgeCategoryCard(
+                                  title: 'Ages 4-8',
+                                  description: 'Early readers',
+                                  color: AppTheme.age48Color,
+                                  icon: Icons.face,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BooksListScreen(
+                                          ageGroup: BookService.ageGroup48,
+                                          title: 'Ages 4-8 (Word)',
+                                          extension: bookExtensionToString(BookExtension.doc)
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                AgeCategoryCard(
+                                  title: 'Ages 8-12',
+                                  description: 'Chapter books',
+                                  color: AppTheme.age812Color,
+                                  icon: Icons.school,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BooksListScreen(
+                                          ageGroup: BookService.ageGroup812,
+                                          title: 'Ages 8-12 (Word)',
+                                          extension: bookExtensionToString(BookExtension.doc)
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      },
+                        ],
+                      ),
                     ),
                   ],
                 ),

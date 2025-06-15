@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/models/book.dart';
 import 'package:android_dev_final_project/screens/books/book_detail_screen.dart';
+import 'package:android_dev_final_project/screens/books/upload_book_screen.dart';
 import 'package:android_dev_final_project/services/book_service.dart';
 import 'package:android_dev_final_project/widgets/book_card.dart';
 import 'package:provider/provider.dart';
@@ -8,11 +9,13 @@ import 'package:provider/provider.dart';
 class BooksListScreen extends StatelessWidget {
   final String ageGroup;
   final String title;
+  final String extension;
 
   const BooksListScreen({
     super.key,
     required this.ageGroup,
     required this.title,
+    required this.extension
   });
 
   @override
@@ -24,7 +27,7 @@ class BooksListScreen extends StatelessWidget {
         title: Text(title),
       ),
       body: StreamBuilder<List<Book>>(
-        stream: bookService.getBooksByAgeGroup(ageGroup),
+        stream: bookService.getBooksByAgeGroupAndExtension(ageGroup, extension),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -84,6 +87,7 @@ class BooksListScreen extends StatelessWidget {
               final book = books[index];
               return BookCard(
                 book: book,
+                extension: extension,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -97,7 +101,21 @@ class BooksListScreen extends StatelessWidget {
           );
         },
       ),
-      // Removed the FloatingActionButton completely
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UploadBookScreen(
+                  ageGroup: ageGroup,
+                  extension: extension
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.upload_file),
+        label: const Text('Upload Book'),
+      ),
     );
   }
 }
