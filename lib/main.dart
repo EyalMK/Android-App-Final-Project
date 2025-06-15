@@ -1,9 +1,10 @@
+import 'package:android_dev_final_project/screens/splash_screen.dart';
+import 'package:android_dev_final_project/services/theme_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/services/book_service.dart';
-import 'package:android_dev_final_project/screens/age_selection/age_selection_screen.dart';
 import 'package:android_dev_final_project/utils/theme.dart';
 import 'package:provider/provider.dart';
 
@@ -30,13 +31,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => BookService(),
-      child: MaterialApp(
-        title: "Peekabook - Children's Books App",
-        theme: AppTheme.theme,
-        debugShowCheckedModeBanner: false,
-        home: const AgeSelectionScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => BookService()),
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+      ],
+      child: Consumer<ThemeService>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: "Peekabook - Children's Books App",
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            debugShowCheckedModeBanner: false,
+            home: const SplashScreen(),
+          );
+        },
       ),
     );
   }
