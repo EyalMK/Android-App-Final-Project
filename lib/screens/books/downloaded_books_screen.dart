@@ -109,6 +109,7 @@ class _DownloadedBooksScreenState extends State<DownloadedBooksScreen> {
                         final book = _downloadedBooks[index];
                         return BookCard(
                           book: book,
+                          extension: bookExtensionToString(book.extension),
                           onTap: () {
                             Navigator.push(
                               context,

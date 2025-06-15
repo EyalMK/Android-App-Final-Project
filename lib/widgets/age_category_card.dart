@@ -27,7 +27,7 @@ class AgeCategoryCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -42,15 +42,15 @@ class AgeCategoryCard extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                radius: 30,
+                radius: 20,
                 backgroundColor: Colors.white.withOpacity(0.3),
                 child: Icon(
                   icon,
-                  size: 36,
+                  size: 24,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,18 +59,20 @@ class AgeCategoryCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         color: Colors.white.withOpacity(0.9),
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -78,6 +80,7 @@ class AgeCategoryCard extends StatelessWidget {
               const Icon(
                 Icons.arrow_forward_ios,
                 color: Colors.white,
+                size: 16,
               ),
             ],
           ),

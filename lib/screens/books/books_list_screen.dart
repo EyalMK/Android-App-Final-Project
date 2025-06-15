@@ -9,11 +9,13 @@ import 'package:provider/provider.dart';
 class BooksListScreen extends StatelessWidget {
   final String ageGroup;
   final String title;
+  final String extension;
 
   const BooksListScreen({
     super.key,
     required this.ageGroup,
     required this.title,
+    required this.extension
   });
 
   @override
@@ -25,7 +27,7 @@ class BooksListScreen extends StatelessWidget {
         title: Text(title),
       ),
       body: StreamBuilder<List<Book>>(
-        stream: bookService.getBooksByAgeGroup(ageGroup),
+        stream: bookService.getBooksByAgeGroupAndExtension(ageGroup, extension),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -85,6 +87,7 @@ class BooksListScreen extends StatelessWidget {
               final book = books[index];
               return BookCard(
                 book: book,
+                extension: extension,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -103,7 +106,10 @@ class BooksListScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => UploadBookScreen(ageGroup: ageGroup),
+              builder: (context) => UploadBookScreen(
+                  ageGroup: ageGroup,
+                  extension: extension
+              ),
             ),
           );
         },

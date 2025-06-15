@@ -12,17 +12,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  
-  final List<Widget> _screens = [
-    const AgeSelectionScreen(),
-    const DownloadedBooksScreen(),
-    const SettingsScreen(),
-  ];
-  
+
+  Widget _getScreen(int index) {
+    switch (index) {
+      case 0:
+        return const AgeSelectionScreen();
+      case 1:
+        return const DownloadedBooksScreen();
+      case 2:
+        return const SettingsScreen();
+      default:
+        return const AgeSelectionScreen();
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: _getScreen(_currentIndex),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {

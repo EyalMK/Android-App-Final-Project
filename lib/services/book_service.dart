@@ -16,11 +16,12 @@ class BookService extends ChangeNotifier {
   static const String ageGroup48 = '4-8';
   static const String ageGroup812 = '8-12';
   
-  // Get books by age group
-  Stream<List<Book>> getBooksByAgeGroup(String ageGroup) {
+  // Get books by age group and extension
+  Stream<List<Book>> getBooksByAgeGroupAndExtension(String ageGroup, String extension) {
     return _firestore
         .collection('books')
         .where('ageGroup', isEqualTo: ageGroup)
+        .where('extension', isEqualTo: extension)
         .orderBy('uploadDate', descending: true)
         .snapshots()
         .map((snapshot) {
@@ -42,6 +43,7 @@ class BookService extends ChangeNotifier {
     // Upload book file and cover image to Supabase storage...
     final bookFileBytes = await bookFile.readAsBytes();
     final bookFileName = bookFile.path.split('/').last;
+    final bookExtension = bookFileName.split('.').last.toLowerCase();
 
     final coverFileBytes = await coverImage.readAsBytes();
     final coverFileName = coverImage.path.split('/').last;
@@ -67,6 +69,7 @@ class BookService extends ChangeNotifier {
       description: description,
       coverUrl: coverUrl,
       fileUrl: bookUrl,
+      extension: bookExtensionFromString(bookExtension),
       ageGroup: ageGroup,
       uploadDate: DateTime.now(),
     );
@@ -81,7 +84,7 @@ class BookService extends ChangeNotifier {
   // Download a book
   Future<File> downloadBook(Book book) async {
     final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/${book.id}.pdf';
+    final filePath = '${directory.path}/${book.id}.${bookExtensionToString(book.extension)}';
     final file = File(filePath);
 
     // Check if file already exists
@@ -121,7 +124,7 @@ class BookService extends ChangeNotifier {
 
     for (final doc in booksSnapshot.docs) {
       final book = Book.fromMap(doc.data(), doc.id);
-      final filePath = '${directory.path}/${book.id}.pdf';
+      final filePath = '${directory.path}/${book.id}.${bookExtensionToString(book.extension)}';
       final file = File(filePath);
 
       if (await file.exists()) {

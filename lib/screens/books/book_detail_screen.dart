@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:android_dev_final_project/screens/books/word_viewer_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -25,6 +26,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   bool _isDownloading = false;
   bool _isDownloaded = false;
   String? _errorMessage;
+  ScaffoldMessengerState? _scaffoldMessenger;
 
   @override
   void initState() {
@@ -32,17 +34,48 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _checkIfDownloaded();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Save reference to ScaffoldMessenger for safe disposal
+    _scaffoldMessenger = ScaffoldMessenger.of(context);
+  }
+
+  @override
+  void dispose() {
+    // Use the saved reference instead of context lookup
+    try {
+      _scaffoldMessenger?.clearSnackBars();
+    } catch (e) {
+      // Ignore errors during disposal
+    }
+    super.dispose();
+  }
+
   Future<void> _checkIfDownloaded() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/${widget.book.id}.pdf';
-    final file = File(filePath);
-    
-    setState(() {
-      _isDownloaded = file.existsSync();
-    });
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/${widget.book.id}.${bookExtensionToString(widget.book.extension)}';
+      final file = File(filePath);
+
+      if (mounted) {
+        setState(() {
+          _isDownloaded = file.existsSync();
+        });
+      }
+    } catch (e) {
+      // Handle error silently or log it
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error checking download status';
+        });
+      }
+    }
   }
 
   Future<void> _downloadBook() async {
+    if (!mounted) return;
+
     setState(() {
       _isDownloading = true;
       _errorMessage = null;
@@ -51,54 +84,108 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     try {
       final bookService = Provider.of<BookService>(context, listen: false);
       await bookService.downloadBook(widget.book);
-      
-      setState(() {
-        _isDownloaded = true;
-      });
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Book downloaded successfully')),
+        setState(() {
+          _isDownloaded = true;
+        });
+
+        // Use the helper method for safe SnackBar display
+        _showSnackBarSafely(
+          'Book downloaded successfully',
+          backgroundColor: Colors.green,
         );
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
     } finally {
-      setState(() {
-        _isDownloading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isDownloading = false;
+        });
+      }
     }
   }
 
   void _openBook() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/${widget.book.id}.pdf';
-    final file = File(filePath);
-    
-    if (await file.exists()) {
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PdfViewerScreen(
-              filePath: filePath,
-              title: widget.book.title,
+    if (!mounted) return;
+
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/${widget.book.id}.${bookExtensionToString(widget.book.extension)}';
+      final file = File(filePath);
+
+      if (await file.exists()) {
+        if (!mounted) return;
+
+        if (widget.book.extension == BookExtension.pdf) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PdfViewerScreen(
+                filePath: filePath,
+                title: widget.book.title,
+              ),
             ),
-          ),
-        );
+          );
+        } else if (widget.book.extension == BookExtension.doc) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WordViewerScreen(
+                filePath: filePath,
+                title: widget.book.title,
+              ),
+            ),
+          );
+        } else {
+          _showSnackBarSafely(
+            'This book format is not supported for viewing',
+            backgroundColor: Colors.orange,
+          );
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _isDownloaded = false;
+          });
+
+          _showSnackBarSafely(
+            'Book not found. Please download again.',
+            backgroundColor: Colors.red,
+          );
+        }
       }
-    } else {
-      setState(() {
-        _isDownloaded = false;
-      });
-      
+    } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Book not found. Please download again.')),
+        _showSnackBarSafely(
+          'Error opening book: ${e.toString()}',
+          backgroundColor: Colors.red,
         );
       }
+    }
+  }
+
+  void _showSnackBarSafely(String message, {Color? backgroundColor}) {
+    if (!mounted) return;
+
+    try {
+      // Clear existing snackbars and show new one
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 2),
+          backgroundColor: backgroundColor,
+        ),
+      );
+    } catch (e) {
+      // If SnackBar fails, just ignore it
+      debugPrint('Failed to show SnackBar: $e');
     }
   }
 
@@ -120,15 +207,29 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    image: DecorationImage(
+                    image: widget.book.coverUrl.isNotEmpty
+                        ? DecorationImage(
                       image: NetworkImage(widget.book.coverUrl),
                       fit: BoxFit.cover,
-                    ),
+                      onError: (exception, stackTrace) {
+                        // Handle image loading error silently
+                      },
+                    )
+                        : null,
                   ),
+                  child: widget.book.coverUrl.isEmpty
+                      ? const Center(
+                    child: Icon(
+                      Icons.book,
+                      size: 64,
+                      color: Colors.grey,
+                    ),
+                  )
+                      : null,
                 ),
               ),
             ),
-            
+
             // Book details
             Padding(
               padding: const EdgeInsets.all(16),
@@ -149,9 +250,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
-                  // Age group and upload date
-                  Row(
+
+                  // Age group, file type, and upload date
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       Chip(
                         label: Text('Ages ${widget.book.ageGroup}'),
@@ -161,17 +264,30 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Uploaded on ${DateFormat.yMMMd().format(widget.book.uploadDate)}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                      Chip(
+                        label: Text(bookExtensionToString(widget.book.extension).toUpperCase()),
+                        backgroundColor: _getExtensionColor(widget.book.extension),
+                        avatar: Icon(
+                          _getExtensionIcon(widget.book.extension),
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        labelStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Uploaded on ${DateFormat.yMMMd().format(widget.book.uploadDate)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                    ),
+                  ),
                   const SizedBox(height: 24),
-                  
+
                   // Description
                   Text(
                     'Description',
@@ -185,8 +301,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 32),
-                  
-                  // Download count
+
+                  // Download count and file info
                   Row(
                     children: [
                       const Icon(Icons.download, size: 20),
@@ -195,22 +311,60 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         '${widget.book.downloadCount} downloads',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
+                      const Spacer(),
+                      if (_isDownloaded)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.green.withOpacity(0.3)),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.download_done, size: 16, color: Colors.green),
+                              SizedBox(width: 4),
+                              Text(
+                                'Downloaded',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Error message
                   if (_errorMessage != null) ...[
-                    Text(
-                      _errorMessage!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.withOpacity(0.3)),
                       ),
-                      textAlign: TextAlign.center,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
                   ],
-                  
+
                   // Download or Read button
                   CustomButton(
                     text: _isDownloaded ? 'Read Book' : 'Download Book',
@@ -239,5 +393,26 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         return Colors.grey;
     }
   }
-}
 
+  Color _getExtensionColor(BookExtension extension) {
+    switch (extension) {
+      case BookExtension.pdf:
+        return Colors.red;
+      case BookExtension.doc:
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getExtensionIcon(BookExtension extension) {
+    switch (extension) {
+      case BookExtension.pdf:
+        return Icons.picture_as_pdf;
+      case BookExtension.doc:
+        return Icons.description;
+      default:
+        return Icons.insert_drive_file;
+    }
+  }
+}

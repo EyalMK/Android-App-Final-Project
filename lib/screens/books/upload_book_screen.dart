@@ -8,10 +8,12 @@ import 'package:file_selector/file_selector.dart';
 
 class UploadBookScreen extends StatefulWidget {
   final String ageGroup;
+  final String extension;
 
   const UploadBookScreen({
     super.key,
     required this.ageGroup,
+    required this.extension
   });
 
   @override
@@ -23,6 +25,7 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
   final _titleController = TextEditingController();
   final _authorController = TextEditingController();
   final _descriptionController = TextEditingController();
+  ScaffoldMessengerState? _scaffoldMessenger;
 
   File? _bookFile;
   File? _coverImage;
@@ -30,7 +33,20 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
   String? _errorMessage;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Save reference to ScaffoldMessenger for safe disposal
+    _scaffoldMessenger = ScaffoldMessenger.of(context);
+  }
+
+  @override
   void dispose() {
+    // Use the saved reference instead of context lookup
+    try {
+      _scaffoldMessenger?.clearSnackBars();
+    } catch (e) {
+      // Ignore errors during disposal
+    }
     _titleController.dispose();
     _authorController.dispose();
     _descriptionController.dispose();
@@ -39,19 +55,47 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
 
   Future<void> _pickBookFile() async {
     try {
-      final XTypeGroup pdfTypeGroup = XTypeGroup(
-        label: 'PDFs',
-        extensions: ['pdf'],
-        mimeTypes: ['application/pdf'],
-      );
+      XTypeGroup typeGroup;
+
+      if (widget.extension.toLowerCase() == 'pdf') {
+        typeGroup = const XTypeGroup(
+          label: 'PDF Files',
+          extensions: ['pdf'],
+          mimeTypes: ['application/pdf'],
+        );
+      } else {
+        // For DOC/DOCX files
+        typeGroup = const XTypeGroup(
+          label: 'Word Documents',
+          extensions: ['doc', 'docx'],
+          mimeTypes: [
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          ],
+        );
+      }
 
       final XFile? file = await openFile(
-        acceptedTypeGroups: [pdfTypeGroup],
+        acceptedTypeGroups: [typeGroup],
       );
 
       if (file != null) {
+        // Validate file extension
+        final fileName = file.name.toLowerCase();
+        final isValidFile = widget.extension.toLowerCase() == 'pdf'
+            ? fileName.endsWith('.pdf')
+            : (fileName.endsWith('.doc') || fileName.endsWith('.docx'));
+
+        if (!isValidFile) {
+          setState(() {
+            _errorMessage = 'Please select a valid ${widget.extension.toUpperCase()} file';
+          });
+          return;
+        }
+
         setState(() {
           _bookFile = File(file.path);
+          _errorMessage = null;
         });
       }
     } catch (e) {
@@ -72,6 +116,7 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
       if (image != null) {
         setState(() {
           _coverImage = File(image.path);
+          _errorMessage = null;
         });
       }
     } catch (e) {
@@ -86,7 +131,7 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
 
     if (_bookFile == null) {
       setState(() {
-        _errorMessage = 'Please select a PDF file';
+        _errorMessage = 'Please select a ${widget.extension.toUpperCase()} file';
       });
       return;
     }
@@ -116,10 +161,11 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Book uploaded successfully')),
-        );
-        Navigator.pop(context);
+        // Just navigate back with success result
+        Navigator.pop(context, {
+          'success': true,
+          'message': '${widget.extension.toUpperCase()} book uploaded successfully'
+        });
       }
     } catch (e) {
       setState(() {
@@ -132,11 +178,28 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
     }
   }
 
+  String get _fileTypeDisplayName {
+    return widget.extension.toLowerCase() == 'pdf' ? 'PDF' : 'Word Document';
+  }
+
+  IconData get _fileTypeIcon {
+    return widget.extension.toLowerCase() == 'pdf'
+        ? Icons.picture_as_pdf
+        : Icons.description;
+  }
+
+  Color get _fileTypeColor {
+    return widget.extension.toLowerCase() == 'pdf'
+        ? Colors.red
+        : Colors.blue;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upload Book'),
+        title: Text('Upload ${_fileTypeDisplayName}'),
+        backgroundColor: _fileTypeColor.withOpacity(0.1),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -146,14 +209,50 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Upload a new book for ages ${widget.ageGroup}',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                // Header with file type indicator
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: _fileTypeColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _fileTypeColor.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _fileTypeIcon,
+                        size: 32,
+                        color: _fileTypeColor,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Upload ${_fileTypeDisplayName}',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: _fileTypeColor,
+                              ),
+                            ),
+                            Text(
+                              'For ages ${widget.ageGroup}',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: _fileTypeColor.withOpacity(0.8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
 
+                // Cover image picker
                 GestureDetector(
                   onTap: _pickCoverImage,
                   child: Container(
@@ -198,12 +297,14 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
                 // Book file picker
                 OutlinedButton.icon(
                   onPressed: _pickBookFile,
-                  icon: const Icon(Icons.upload_file),
+                  icon: Icon(_fileTypeIcon, color: _fileTypeColor),
                   label: Text(_bookFile != null
                       ? 'Selected: ${_bookFile!.path.split('/').last}'
-                      : 'Select PDF File'),
+                      : 'Select ${_fileTypeDisplayName} File'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(color: _fileTypeColor.withOpacity(0.5)),
+                    foregroundColor: _fileTypeColor,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -258,19 +359,32 @@ class _UploadBookScreenState extends State<UploadBookScreen> {
 
                 // Error message
                 if (_errorMessage != null) ...[
-                  Text(
-                    _errorMessage!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.withOpacity(0.3)),
                     ),
-                    textAlign: TextAlign.center,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                 ],
 
                 // Upload button
                 CustomButton(
-                  text: 'Upload Book',
+                  text: 'Upload ${_fileTypeDisplayName}',
                   icon: Icons.cloud_upload,
                   isLoading: _isUploading,
                   onPressed: _uploadBook,

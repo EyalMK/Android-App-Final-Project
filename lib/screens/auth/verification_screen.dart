@@ -33,6 +33,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   void _startResendTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return; // Add this!
       if (_resendTimer > 0) {
         setState(() {
           _resendTimer--;
@@ -42,6 +43,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
       }
     });
   }
+
 
   Future<void> _verifyCode() async {
     if (_codeController.text.length != 6) return;
@@ -66,10 +68,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   @override
   void dispose() {
-    _codeController.dispose();
     _timer?.cancel();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
