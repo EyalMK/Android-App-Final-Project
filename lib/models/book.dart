@@ -6,7 +6,8 @@ class Book {
   final String author;
   final String description;
   final String coverUrl;
-  final String fileUrl;
+  final String pdfUrl;
+  final String wordUrl;
   final String ageGroup;
   final DateTime uploadDate;
   final int downloadCount;
@@ -18,7 +19,8 @@ class Book {
     required this.author,
     required this.description,
     required this.coverUrl,
-    required this.fileUrl,
+    required this.pdfUrl,
+    required this.wordUrl,
     required this.ageGroup,
     required this.uploadDate,
     this.downloadCount = 0,
@@ -32,7 +34,8 @@ class Book {
       author: map['author'] ?? '',
       description: map['description'] ?? '',
       coverUrl: map['coverUrl'] ?? '',
-      fileUrl: map['fileUrl'] ?? '',
+      pdfUrl: map['pdfUrl'] ?? '',
+      wordUrl: map['wordUrl'] ?? '',
       ageGroup: map['ageGroup'] ?? '',
       uploadDate: (map['uploadDate'] as Timestamp).toDate(),
       downloadCount: map['downloadCount'] ?? 0,
@@ -46,7 +49,8 @@ class Book {
       'author': author,
       'description': description,
       'coverUrl': coverUrl,
-      'fileUrl': fileUrl,
+      'pdfUrl': pdfUrl,
+      'wordUrl': wordUrl,
       'ageGroup': ageGroup,
       'uploadDate': uploadDate,
       'downloadCount': downloadCount,
@@ -60,7 +64,8 @@ class Book {
     String? author,
     String? description,
     String? coverUrl,
-    String? fileUrl,
+    String? pdfUrl,
+    String? wordUrl,
     String? ageGroup,
     DateTime? uploadDate,
     int? downloadCount,
@@ -71,8 +76,9 @@ class Book {
       title: title ?? this.title,
       author: author ?? this.author,
       description: description ?? this.description,
-      fileUrl: fileUrl ?? this.fileUrl,
       coverUrl: coverUrl ?? this.coverUrl,
+      pdfUrl: pdfUrl ?? this.pdfUrl,
+      wordUrl: wordUrl ?? this.wordUrl,
       ageGroup: ageGroup ?? this.ageGroup,
       uploadDate: uploadDate ?? this.uploadDate,
       downloadCount: downloadCount ?? this.downloadCount,
