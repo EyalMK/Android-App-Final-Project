@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:android_dev_final_project/models/book.dart';
 import 'package:android_dev_final_project/screens/books/book_detail_screen.dart';
-import 'package:android_dev_final_project/screens/books/upload_book_screen.dart';
 import 'package:android_dev_final_project/services/book_service.dart';
 import 'package:android_dev_final_project/widgets/book_card.dart';
 import 'package:provider/provider.dart';
@@ -98,18 +97,7 @@ class BooksListScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => UploadBookScreen(ageGroup: ageGroup),
-            ),
-          );
-        },
-        icon: const Icon(Icons.upload_file),
-        label: const Text('Upload Book'),
-      ),
+      // Removed the FloatingActionButton completely
     );
   }
 }
